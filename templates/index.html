@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<body>
+    <center>
+      <h1><img src="static/images/logstash.png" width="40px" height="50px">OGSTASH MONITOR</h1>
+      <img src="static/images/elt_v1.gif" width="200px" height="200px">
+    </center>
+    <p id="hora"></p>
+    <br /><br />
+    
+    <p id="demo"></p>
+    <input type="submit" name="Submit" id="but" value="Atualizar" hidden="hidden">
+
+    <script>
+      var but = document.querySelector("[name='Submit']");
+      setInterval(function () {but.click();},3000);
+    </script>
+
+    <!-- <script src="static/js/logstash.js"></script> -->
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script type="text/javascript">
+            $("#but").ready(function(){
+              $('#but').on('click', function(event) {
+                    $.ajax({
+                        type: "POST",
+                        url: "/logstash",
+                        data: {
+                        },
+                        success: function (data){
+                            //console.log(data.output);
+                            const obj = JSON.parse(data.output);
+                            const logstash_return = Object.values(obj);
+
+                            var string_join = ""
+
+                            for (pipeline_name in logstash_return[9]) {
+                                var nome_pipeline = pipeline_name;
+                                //var total_input_in = logstash_return[9][pipeline_name]['plugins']['inputs'][0]['events']['out'];
+                                var total_input_out = logstash_return[9][pipeline_name]['plugins']['inputs'][0]['events']['out'];
+                                //var total_filter_in = logstash_return[9][pipeline_name]['plugins']['inputs'][0]['events']['out'];
+                                //var total_filter_out = logstash_return[9][pipeline_name]['plugins']['inputs'][0]['events']['out'];
+                                var total_output_in = logstash_return[9][pipeline_name]['plugins']['outputs'][0]['events']['out'];
+                                var total_output_out = logstash_return[9][pipeline_name]['plugins']['outputs'][0]['events']['out'];
+
+                                if(total_input_out != total_output_in) {
+                                  string_join = string_join + "<font color='red'>"; 
+                                }
+
+                                string_join = string_join + "<div class='row'><div class='column'><div class='card'><h3>Pipeline</h3><p>"+nome_pipeline+"</p></div></div>";
+                                string_join = string_join + "<div class='column'><div class='card'><h3>Input out</h3><p>"+total_input_out+"</p></div></div>";
+                                string_join = string_join + "<div class='column'><div class='card'><h3>Output In</h3><p>"+total_output_in+"</p></div></div>";
+                                string_join = string_join + "<div class='column'><div class='card'><h3>Output out</h3><p>"+total_output_out+"</p></div></div></div><br />";
+
+                                if(total_input_out != total_output_in) {
+                                  string_join = string_join + "</font>"; 
+                                }
+                            }
+                            
+                            document.getElementById("demo").innerHTML = string_join;
+                            const d = new Date();
+                            var custom_message = "Last Update: "+ d;
+                            document.getElementById("hora").innerHTML = custom_message;
+
+                            
+                        },
+                        error: function () {
+                            console.log();
+                        }
+                    });
+                  });
+                });
+                  
+        </script>
+  
+  </body>
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet">
